@@ -1,0 +1,220 @@
+<section id="actions" class="py-4 mb-4 bg-light">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3">
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#agregarCliente"
+        >
+          <i class="fa-sharp fa-solid fa-plus"></i> Agregar cliente
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="clientes">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-9">
+        <div class="card">
+          <div class="card-header">
+            <h4>Listado de clientes</h4>
+          </div>
+          <table class="table table-striped">
+            <thead class="thead-dark">
+              <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Saldo</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let cliente of clientes; let i = index">
+                <td>{{ i + 1 }}</td>
+                <td>{{ cliente.nombre }} {{ cliente.apellido }}</td>
+                <td>{{ cliente.saldo | currency : "ARS" : "$" }}</td>
+                <td>
+                  <a
+                    routerLink="/cliente/editar/{{ cliente.id }}"
+                    class="btn btn-warning"
+                  >
+                    <i class="fa-solid fa-pen-to-square"></i> Editar
+                  </a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card-text-center bg-danger text-light mb-3 p-2">
+          <div class="card-body">
+            <h3>Saldo total</h3>
+            <h4 class="display-4">
+              {{ getSaldoTotal() | currency : "ARS" : "$" }}
+            </h4>
+          </div>
+        </div>
+
+        <div class="card-text-center bg-success text-light mb-3 p-2">
+          <div class="card-body">
+            <h3>Total clientes</h3>
+            <h4 class="display-4">
+              <i class="fas fa-users"></i> {{ clientes?.length }}
+            </h4>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div
+  class="modal fade"
+  id="agregarCliente"
+  tabindex="-1"
+  aria-labelledby="exampleModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Agregar cliente</h1>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          #botonCerrar
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <form #f="ngForm" (ngSubmit)="agregarCliente(f, cliente)">
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="nombre" class="mb-2">Nombre</label>
+              <input
+                type="text"
+                name="nombre"
+                class="form-control"
+                #nombre="ngModel"
+                [(ngModel)]="cliente.nombre"
+                [ngClass]="{ 'is-invalid': nombre.errors && nombre.touched }"
+                required
+                minlength="2"
+              />
+              <div
+                [hidden]="!nombre.errors?.['required']"
+                class="invalid-feedback"
+              >
+                Nombre Requerido
+              </div>
+              <div
+                [hidden]="!nombre.errors?.['minlength']"
+                class="invalid-feedback"
+              >
+                Debe contener al menos 2 caracteres
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="apellido" class="mb-2">Apellido</label>
+              <input
+                type="text"
+                name="apellido"
+                class="form-control"
+                #apellido="ngModel"
+                [(ngModel)]="cliente.apellido"
+                [ngClass]="{ 'is-invalid': apellido.errors && apellido.touched }"
+                required
+                minlength="2"
+              />
+
+              <div
+                [hidden]="!apellido.errors?.['required']"
+                class="invalid-feedback"
+              >
+                Apellido Requerido
+              </div>
+              <div
+                [hidden]="!apellido.errors?.['minlength']"
+                class="invalid-feedback"
+              >
+                Debe contener al menos 2 caracteres
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="email" class="mb-2">E-mail</label>
+              <input 
+              type="email" 
+              name="email"
+              class="form-control"
+              #email="ngModel"
+              [(ngModel)]="cliente.email"
+              [ngClass]="{ 'is-invalid': email.errors && email.touched }"
+              required
+              pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
+              />
+
+              <div
+                [hidden]="!email.errors?.['required']"
+                class="invalid-feedback"
+              >
+                Email Requerido
+              </div>
+              <div
+                [hidden]="!email.errors?.['pattern']"
+                class="invalid-feedback"
+              >
+                Email no es valido
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="saldo" class="mb-2">Saldo</label>
+              <input
+               type="number"
+               name="saldo"
+               class="form-control"
+               #saldo="ngModel"
+               [(ngModel)]="cliente.saldo"
+               [ngClass]="{ 'is-invalid': saldo.errors && saldo.touched }"
+               required/>
+
+               <div
+                [hidden]="!saldo.errors?.['required']"
+                class="invalid-feedback"
+              >
+                Saldo Requerido
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-success">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div
+    *ngIf="mostrarAlerta"
+    class="alert alert-danger alert-dismissible fade show"
+    role="alert"
+  >
+    Porfavor completa todos los campos
+    <button
+      type="button"
+      class="btn-close"
+      data-bs-dismiss="alert"
+      aria-label="Close"
+    ></button>
+  </div>
+</div>
